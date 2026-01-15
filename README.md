@@ -12,6 +12,12 @@
 [![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![GitHub Stars](https://img.shields.io/github/stars/deyndev/fluxboard?style=for-the-badge&logo=github)](https://github.com/deyndev/fluxboard/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/deyndev/fluxboard?style=for-the-badge&logo=github)](https://github.com/deyndev/fluxboard/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/deyndev/fluxboard?style=for-the-badge&logo=github)](https://github.com/deyndev/fluxboard/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
+
 </div>
 
 <br />
@@ -30,6 +36,9 @@
 -   [🏁 Getting Started](#-getting-started)
 -   [🔐 Environment Variables](#-environment-variables)
 -   [📦 Project Structure](#-project-structure)
+-   [📄 License](#-license)
+-   [🤝 Contributing](#-contributing)
+-   [🙏 Acknowledgments](#-acknowledgments)
 
 ---
 
@@ -165,6 +174,51 @@ fluxboard/
 
 ---
 
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+You are free to use, modify, and distribute this software for any purpose.
+
+---
+
+## 🤝 Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+---
+
+## 🙏 Acknowledgments
+
+FluxBoard is built on the shoulders of giants. Special thanks to all the open source projects that made this possible:
+
+*   [React](https://reactjs.org/) - A JavaScript library for building user interfaces
+*   [NestJS](https://nestjs.com/) - A progressive Node.js framework
+*   [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript at Any Scale
+*   [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework
+*   [Socket.io](https://socket.io/) - Real-time bidirectional event-based communication
+*   [PostgreSQL](https://www.postgresql.org/) - The World's Most Advanced Open Source Relational Database
+*   [Redis](https://redis.io/) - In-memory data structure store
+*   [BullMQ](https://docs.bullmq.io/) - Premium Message Queue for Node.js
+*   [Framer Motion](https://www.framer.com/motion/) - A production-ready motion library for React
+*   [@hello-pangea/dnd](https://github.com/hello-pangea/dnd) - Beautiful drag and drop for lists
+*   [TanStack Query](https://tanstack.com/query) - Powerful asynchronous state management
+*   [TypeORM](https://typeorm.io/) - Amazing ORM for TypeScript and JavaScript
+
+---
+
 <p align="center">
   Made with ❤️ by deyndev
+</p>
+
+<p align="center">
+  <a href="https://github.com/deyndev/fluxboard/issues">Report Bug</a>
+  ·
+  <a href="https://github.com/deyndev/fluxboard/issues">Request Feature</a>
 </p>
