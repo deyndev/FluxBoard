@@ -166,5 +166,5 @@ fluxboard/
 ---
 
 <p align="center">
-  Made with ❤️ by the FluxBoard Team
+  Made with ❤️ by deyndev
 </p>
