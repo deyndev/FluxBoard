@@ -13,6 +13,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flux -d fluxboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -22,6 +27,44 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: fluxboard_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: flux
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: fluxboard
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: supersecretkey_change_me_in_prod
+      FRONTEND_URL: http://localhost:5173 # For local dev access to backend if needed, but via nginx it's /api
+      # Actually, since frontend is served on port 80/5173, we need to allow the browser origin
+      # If running via docker-compose, frontend is at http://localhost:8080 (let's map it)
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    container_name: fluxboard_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
 
 volumes:
   postgres_data:
