@@ -14,14 +14,14 @@ export class CardsService {
     @InjectRepository(Card) private cardsRepo: Repository<Card>,
     @InjectRepository(BoardColumn) private columnsRepo: Repository<BoardColumn>,
     @InjectRepository(Board) private boardsRepo: Repository<Board>,
-  ) {}
+  ) { }
 
   async create(createCardDto: CreateCardDto, userId: string) {
-    const column = await this.columnsRepo.findOne({ 
+    const column = await this.columnsRepo.findOne({
       where: { id: createCardDto.columnId },
       relations: ['board']
     });
-    
+
     if (!column) throw new NotFoundException('Column not found');
     if (column.board.ownerId !== userId) throw new ForbiddenException('Access denied');
 
@@ -46,7 +46,7 @@ export class CardsService {
 
     if (updateCardDto.columnId && updateCardDto.columnId !== card.columnId) {
       // Validate new column ownership
-      const newColumn = await this.columnsRepo.findOne({ 
+      const newColumn = await this.columnsRepo.findOne({
         where: { id: updateCardDto.columnId },
         relations: ['board']
       });
@@ -55,6 +55,9 @@ export class CardsService {
     }
 
     Object.assign(card, updateCardDto);
+    // Clear the relation to ensure columnId takes precedence in TypeORM
+    (card as any).column = undefined;
+
     return this.cardsRepo.save(card);
   }
 
