@@ -6,47 +6,64 @@ import {
   ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, Logger } from '@nestjs/common';
 import { WsJwtGuard } from '../../auth/ws-jwt.guard';
 import { BoardPersistProcessor } from '../board-persist.processor';
+import { BoardsService } from '../boards.service';
+
+const wsOrigins = process.env.NODE_ENV === 'production'
+  ? [process.env.FRONTEND_URL].filter(Boolean)
+  : ['http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:5173', 'http://127.0.0.1:8080'];
 
 @WebSocketGateway({
   cors: {
-    origin: [
-      process.env.FRONTEND_URL, 
-      'http://localhost:5173', 
-      'http://localhost:8080',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:8080'
-    ],
+    origin: wsOrigins,
     credentials: true,
   },
   namespace: 'boards',
 })
 @UseGuards(WsJwtGuard)
 export class BoardsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger = new Logger(BoardsGateway.name);
+
   @WebSocketServer()
   server: Server;
 
-  constructor(private boardPersist: BoardPersistProcessor) {}
+  constructor(
+    private boardPersist: BoardPersistProcessor,
+    private boardsService: BoardsService,
+  ) { }
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+    this.logger.debug(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    this.logger.debug(`Client disconnected: ${client.id}`);
   }
 
   @SubscribeMessage('joinBoard')
-  handleJoinBoard(
+  async handleJoinBoard(
     @MessageBody() boardId: string,
     @ConnectedSocket() client: Socket,
   ) {
+    const userId = client.data.user?.sub;
+    if (!userId) {
+      throw new WsException('Unauthorized');
+    }
+
+    // Verify board ownership
+    try {
+      await this.boardsService.findOne(boardId, userId);
+    } catch {
+      throw new WsException('Board not found or access denied');
+    }
+
     client.join(boardId);
-    console.log(`Client ${client.id} joined board ${boardId}`);
+    this.logger.debug(`Client ${client.id} joined board ${boardId}`);
     return { event: 'joined', boardId };
   }
 
@@ -83,10 +100,10 @@ export class BoardsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const user = client.data.user;
-    client.to(payload.boardId).emit('cardLocked', { 
-      cardId: payload.cardId, 
-      userId: user.sub, 
-      email: user.email 
+    client.to(payload.boardId).emit('cardLocked', {
+      cardId: payload.cardId,
+      userId: user.sub,
+      email: user.email
     });
   }
 
@@ -98,3 +115,4 @@ export class BoardsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.to(payload.boardId).emit('cardUnlocked', { cardId: payload.cardId });
   }
 }
+

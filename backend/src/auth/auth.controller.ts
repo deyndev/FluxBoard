@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Res, Get, UseGuards, Req } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -7,8 +8,9 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto, @Res({ passthrough: true }) res: Response) {
     const { access_token } = await this.authService.register(createUserDto);
@@ -16,6 +18,7 @@ export class AuthController {
     return { message: 'Registered successfully' };
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { access_token } = await this.authService.login(loginDto);
@@ -23,6 +26,7 @@ export class AuthController {
     return { message: 'Logged in successfully' };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
@@ -44,3 +48,4 @@ export class AuthController {
     });
   }
 }
+
