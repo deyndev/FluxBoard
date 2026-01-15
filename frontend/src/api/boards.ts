@@ -16,11 +16,30 @@ export interface Column {
   cards: Card[];
 }
 
+export interface BoardMember {
+  id: string;
+  userId: string;
+  role: 'owner' | 'member';
+  joined_at: string;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+  };
+}
+
 export interface Board {
   id: string;
   title: string;
+  ownerId: string;
   columns: Column[];
   created_at: string;
+}
+
+export interface UserSearchResult {
+  id: string;
+  email: string;
+  username: string;
 }
 
 export const getBoards = async () => {
@@ -72,3 +91,25 @@ export const deleteColumn = async (id: string) => {
   const res = await api.delete(`/columns/${id}`);
   return res.data;
 };
+
+// Board members API
+export const getBoardMembers = async (boardId: string) => {
+  const res = await api.get<BoardMember[]>(`/boards/${boardId}/members`);
+  return res.data;
+};
+
+export const inviteBoardMember = async (boardId: string, email: string) => {
+  const res = await api.post<BoardMember>(`/boards/${boardId}/members`, { email });
+  return res.data;
+};
+
+export const removeBoardMember = async (boardId: string, userId: string) => {
+  await api.delete(`/boards/${boardId}/members/${userId}`);
+};
+
+// User search
+export const searchUsers = async (email: string) => {
+  const res = await api.get<UserSearchResult[]>(`/users/search?email=${encodeURIComponent(email)}`);
+  return res.data;
+};
+

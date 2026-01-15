@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column as DbColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { BoardColumn } from '../../columns/entities/column.entity';
+import { BoardMember } from './board-member.entity';
 
 @Entity('boards')
 export class Board {
@@ -18,6 +19,9 @@ export class Board {
 
   @OneToMany(() => BoardColumn, (column) => column.board)
   columns: BoardColumn[];
+
+  @OneToMany(() => BoardMember, (member) => member.board)
+  members: BoardMember[];
 
   @CreateDateColumn()
   created_at: Date;

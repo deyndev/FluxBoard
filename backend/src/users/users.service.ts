@@ -1,6 +1,6 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 
@@ -41,6 +41,15 @@ export class UsersService {
 
   async findOne(id: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ id });
+  }
+
+  async searchByEmail(email: string): Promise<{ id: string; email: string; username: string }[]> {
+    const users = await this.usersRepository.find({
+      where: { email: ILike(`%${email}%`) },
+      take: 5,
+      select: ['id', 'email', 'username'],
+    });
+    return users;
   }
 }
 

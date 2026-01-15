@@ -36,7 +36,7 @@ export default function Dashboard() {
     createMutation.mutate(newBoardTitle);
   };
 
-  const filteredBoards = boards?.filter(board => 
+  const filteredBoards = boards?.filter(board =>
     board.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -58,18 +58,18 @@ export default function Dashboard() {
           </div>
           <h1 className="text-xl font-bold bg-gradient-to-r from-white to-secondary bg-clip-text text-transparent">FluxBoard</h1>
         </div>
-        
+
         <div className="flex items-center gap-6">
           <div className="hidden md:block w-64">
-            <Input 
-              icon={<Search className="w-4 h-4" />} 
-              placeholder="Search boards..." 
+            <Input
+              icon={<Search className="w-4 h-4" />}
+              placeholder="Search boards..."
               className="!py-1.5 !rounded-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
+
           <Dropdown
             trigger={
               <button className="relative text-secondary hover:text-white transition-colors cursor-pointer">
@@ -92,7 +92,7 @@ export default function Dashboard() {
           </Dropdown>
 
           <div className="h-8 w-[1px] bg-white/10" />
-          
+
           <Dropdown
             trigger={
               <div className="flex items-center gap-3 cursor-pointer group">
@@ -152,14 +152,20 @@ export default function Dashboard() {
               className="glass-card rounded-3xl p-6 h-[220px] flex flex-col justify-between group relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[50px] -mr-10 -mt-10 group-hover:bg-primary/10 transition-all duration-500" />
-              
+
+              {board.ownerId !== user?.id && (
+                <div className="absolute top-4 right-4 z-20 px-2 py-1 rounded-full bg-primary/20 text-primary text-[10px] font-medium uppercase tracking-wider border border-primary/20">
+                  Shared
+                </div>
+              )}
+
               <div className="relative z-10">
                 <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors line-clamp-1">{board.title}</h3>
                 <p className="text-xs text-secondary mt-2">
                   Edited {new Date(board.created_at).toLocaleDateString()}
                 </p>
               </div>
-              
+
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex -space-x-2">
                   <div className="w-8 h-8 rounded-full bg-surface border border-white/10 flex items-center justify-center text-xs text-secondary">
@@ -181,7 +187,7 @@ export default function Dashboard() {
       {/* Create Modal */}
       {isCreating && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="glass p-8 rounded-3xl w-full max-w-md"

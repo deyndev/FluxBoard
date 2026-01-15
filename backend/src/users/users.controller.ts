@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards, Req, ParseUUIDPipe, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Req, ParseUUIDPipe, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -6,6 +6,14 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
+
+  @Get('search')
+  search(@Query('email') email: string) {
+    if (!email || email.length < 2) {
+      return [];
+    }
+    return this.usersService.searchByEmail(email);
+  }
 
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req: any) {
@@ -16,4 +24,5 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 }
+
 

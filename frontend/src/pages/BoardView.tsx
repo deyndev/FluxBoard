@@ -5,16 +5,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import type { DropResult, DragStart } from '@hello-pangea/dnd';
 import { LexoRank } from 'lexorank';
-import { Plus, MoreHorizontal, Loader2, Lock, ChevronLeft, Layout, Share2, Settings, Trash2, Edit2, Check, AlignLeft, Clock } from 'lucide-react';
+import { Plus, MoreHorizontal, Loader2, Lock, ChevronLeft, Layout, Share2, Settings, Trash2, Edit2, AlignLeft, Clock } from 'lucide-react';
 import { getBoard, createColumn, createCard, updateCard, updateColumn, deleteColumn, updateBoard, deleteBoard } from '../api/boards';
 import type { Board, Card } from '../api/boards';
 import { socket } from '../api/socket';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Dropdown, DropdownItem } from '../components/ui/Dropdown';
-import { motion, AnimatePresence } from 'framer-motion';
 import { CardModal } from '../components/CardModal';
 import { Modal } from '../components/ui/Modal';
+import { ShareModal } from '../components/ShareModal';
+import { useAuth } from '../context/AuthContext';
 
 interface CardContentProps {
   card: Card;
@@ -73,7 +74,6 @@ export default function BoardView() {
   const [isAddingCol, setIsAddingCol] = useState(false);
   const [newColTitle, setNewColTitle] = useState('');
   const [lockedCards, setLockedCards] = useState<Record<string, { userId: string, email: string }>>({});
-  const [showToast, setShowToast] = useState(false);
   const [selectedCard, setSelectedCard] = useState<{ card: Card, columnId: string } | null>(null);
 
   // Modal states
@@ -86,6 +86,11 @@ export default function BoardView() {
 
   const [addCardColumnId, setAddCardColumnId] = useState<string | null>(null);
   const [newCardContent, setNewCardContent] = useState('');
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const { user } = useAuth();
+  const isOwner = localBoard?.ownerId === user?.id;
 
   const { data: board, isLoading } = useQuery({
     queryKey: ['board', id],
@@ -301,29 +306,10 @@ export default function BoardView() {
     setIsAddingCol(false);
   };
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2000);
-  };
-
   if (isLoading || !localBoard) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
 
   return (
     <div className="min-h-screen bg-background flex flex-col h-screen overflow-hidden relative">
-      <AnimatePresence>
-        {showToast && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-20 left-1/2 -translate-x-1/2 bg-surface border border-primary/20 text-primary px-4 py-2 rounded-xl shadow-xl z-[100] flex items-center gap-2"
-          >
-            <Check className="w-4 h-4" /> Link copied to clipboard
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <header className="px-6 py-4 glass-panel flex justify-between items-center z-50">
         <div className="flex items-center gap-4">
           <Link to="/dashboard" className="p-2 hover:bg-white/5 rounded-full transition-colors text-secondary hover:text-white">
@@ -350,7 +336,7 @@ export default function BoardView() {
             </div>
           </div>
 
-          <Button variant="secondary" size="sm" icon={<Share2 className="w-4 h-4" />} onClick={handleShare}>Share</Button>
+          <Button variant="secondary" size="sm" icon={<Share2 className="w-4 h-4" />} onClick={() => setIsShareModalOpen(true)}>Share</Button>
 
           <Dropdown trigger={
             <Button variant="secondary" size="sm" icon={<Settings className="w-4 h-4" />}>Settings</Button>
@@ -364,13 +350,15 @@ export default function BoardView() {
             >
               Rename Board
             </DropdownItem>
-            <DropdownItem
-              icon={<Trash2 />}
-              variant="danger"
-              onClick={() => setIsDeleteBoardOpen(true)}
-            >
-              Delete Board
-            </DropdownItem>
+            {isOwner && (
+              <DropdownItem
+                icon={<Trash2 />}
+                variant="danger"
+                onClick={() => setIsDeleteBoardOpen(true)}
+              >
+                Delete Board
+              </DropdownItem>
+            )}
           </Dropdown>
         </div>
       </header>
@@ -625,6 +613,14 @@ export default function BoardView() {
           </div>
         </form>
       </Modal>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        boardId={id!}
+        ownerId={localBoard.ownerId}
+      />
     </div>
   );
 }
