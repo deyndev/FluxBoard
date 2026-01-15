@@ -4,6 +4,7 @@ export interface Card {
   id: string;
   content: string;
   description?: string;
+  due_date?: string;
   rank: string;
   columnId: string;
 }
@@ -62,7 +63,7 @@ export const updateColumn = async (id: string, data: { rank?: string; title?: st
   return res.data;
 };
 
-export const updateCard = async (id: string, data: { rank?: string; content?: string; description?: string; columnId?: string }) => {
+export const updateCard = async (id: string, data: { rank?: string; content?: string; description?: string; due_date?: string; columnId?: string }) => {
   const res = await api.patch<Card>(`/cards/${id}`, data);
   return res.data;
 };

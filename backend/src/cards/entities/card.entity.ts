@@ -12,6 +12,9 @@ export class Card {
   @DbColumn({ nullable: true })
   description: string;
 
+  @DbColumn({ nullable: true, type: 'timestamp' })
+  due_date: Date;
+
   @DbColumn()
   rank: string;
 

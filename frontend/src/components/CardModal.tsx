@@ -1,38 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlignLeft, Clock } from 'lucide-react';
 import { Button } from './ui/Button';
-import { Input } from './ui/Input';
 import { updateCard } from '../api/boards';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface CardModalProps {
-  card: { id: string; content: string; description?: string };
-  columnId: string;
+  card: { id: string; content: string; description?: string; due_date?: string };
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function CardModal({ card, columnId, isOpen, onClose }: CardModalProps) {
+export function CardModal({ card, isOpen, onClose }: CardModalProps) {
   const [content, setContent] = useState(card.content);
   const [description, setDescription] = useState(card.description || '');
+  const [dueDate, setDueDate] = useState(card.due_date || '');
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
-    mutationFn: (data: { content?: string; description?: string }) => updateCard(card.id, data),
+    mutationFn: (data: { content?: string; description?: string; due_date?: string }) => updateCard(card.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board'] });
     },
   });
 
   const handleSave = () => {
-    updateMutation.mutate({ content, description });
+    updateMutation.mutate({ content, description, due_date: dueDate });
     onClose();
   };
 
   useEffect(() => {
     setContent(card.content);
     setDescription(card.description || '');
+    setDueDate(card.due_date ? new Date(card.due_date).toISOString().split('T')[0] : '');
   }, [card]);
 
   return (
@@ -81,7 +81,19 @@ export function CardModal({ card, columnId, isOpen, onClose }: CardModalProps) {
               {/* Sidebar */}
               <div className="w-48 space-y-4">
                 <div className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">Actions</div>
-                <Button variant="secondary" className="w-full justify-start text-sm" icon={<Clock className="w-4 h-4" />}>Due Date</Button>
+                
+                <div className="relative">
+                  <Button variant="secondary" className="w-full justify-start text-sm" icon={<Clock className="w-4 h-4" />}>
+                    <input 
+                        type="date" 
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                    />
+                    {dueDate ? new Date(dueDate).toLocaleDateString() : 'Due Date'}
+                  </Button>
+                </div>
+                
                 {/* Add more actions here later */}
               </div>
             </div>
