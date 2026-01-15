@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import type { DropResult, DragStart } from '@hello-pangea/dnd';
 import { LexoRank } from 'lexorank';
-import { Plus, MoreHorizontal, Loader2, Lock, ChevronLeft, Layout, Share2, Settings, Trash2, Edit2, Check } from 'lucide-react';
+import { Plus, MoreHorizontal, Loader2, Lock, ChevronLeft, Layout, Share2, Settings, Trash2, Edit2, Check, AlignLeft, Clock } from 'lucide-react';
 import { getBoard, createColumn, createCard, updateCard, updateColumn, deleteColumn, updateBoard, deleteBoard } from '../api/boards';
 import type { Board, Card } from '../api/boards';
 import { socket } from '../api/socket';
@@ -378,6 +378,20 @@ export default function BoardView() {
                                       }`}
                                     >
                                       <p className="text-sm text-gray-200 leading-relaxed">{card.content}</p>
+                                      
+                                      <div className="flex flex-wrap gap-2 mt-2">
+                                        {card.description && (
+                                          <div className="flex items-center gap-1 text-[10px] text-secondary bg-white/5 px-1.5 py-0.5 rounded">
+                                            <AlignLeft className="w-3 h-3" />
+                                          </div>
+                                        )}
+                                        {card.due_date && (
+                                          <div className="flex items-center gap-1 text-[10px] text-secondary bg-white/5 px-1.5 py-0.5 rounded">
+                                            <Clock className="w-3 h-3" />
+                                            <span>{new Date(card.due_date).toLocaleDateString()}</span>
+                                          </div>
+                                        )}
+                                      </div>
 
                                       {isLocked && (
                                         <div className="absolute -top-2 -right-2 flex items-center gap-1 text-[10px] font-bold text-white bg-red-500 shadow-lg shadow-red-500/20 px-2 py-1 rounded-full z-10 animate-pulse">
