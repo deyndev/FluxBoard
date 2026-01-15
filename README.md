@@ -56,13 +56,47 @@
 
 ## 🏗️ Architecture
 
-FluxBoard follows a distributed microservices-ready architecture:
+FluxBoard follows a distributed microservices-ready architecture designed for real-time collaboration at scale.
 
-1.  **Frontend**: React client with TanStack Query for state and Socket.io for live events.
-2.  **Gateway**: NestJS WebSocket Gateway handles real-time connections and broadcasts.
-3.  **Hot Storage**: Redis stores active board states and handles pub/sub for scalability.
-4.  **Write-Behind**: BullMQ processes persist changes to the database asynchronously.
-5.  **Cold Storage**: PostgreSQL serves as the source of truth.
+```mermaid
+flowchart LR
+    subgraph Clients["🖥️ Clients"]
+        A[React Dashboard]
+    end
+
+    subgraph Gateway["🚀 Gateway Layer"]
+        B[NestJS API<br/>:3000]
+    end
+
+    subgraph Messaging["📨 Event Bus"]
+        C[(Redis<br/>Pub/Sub)]
+    end
+
+    subgraph Processing["⚙️ Processing Layer"]
+        D[BullMQ<br/>Job Queue]
+    end
+
+    subgraph Storage["🗄️ Persistence"]
+        E[(PostgreSQL)]
+    end
+
+    A <-->|WebSocket + HTTP| B
+    B <-->|Real-time Events| C
+    B -->|Queue Jobs| D
+    D -->|Write-Behind| E
+    B <-->|Read/Write| E
+    C -.->|Broadcast| B
+```
+
+### Data Flow
+
+| Stage | Service | Technology | Responsibility |
+| :--- | :--- | :--- | :--- |
+| **1. Client** | React Dashboard | React 18 + Socket.io | UI rendering, optimistic updates, real-time subscriptions |
+| **2. Gateway** | API Server | NestJS + TypeScript | REST endpoints, WebSocket gateway, authentication |
+| **3. Cache** | Hot Storage | Redis | Session storage, pub/sub for multi-instance sync |
+| **4. Queue** | Job Processor | BullMQ | Write-behind caching, async persistence |
+| **5. Database** | Cold Storage | PostgreSQL | Source of truth, transactional integrity |
 
 ---
 
@@ -213,12 +247,15 @@ FluxBoard is built on the shoulders of giants. Special thanks to all the open so
 
 ---
 
-<p align="center">
-  Made with ❤️ by deyndev
-</p>
+<div align="center">
 
-<p align="center">
-  <a href="https://github.com/deyndev/fluxboard/issues">Report Bug</a>
-  ·
-  <a href="https://github.com/deyndev/fluxboard/issues">Request Feature</a>
-</p>
+### 💻 Made with ❤️ by **deyndev**
+
+[![GitHub](https://img.shields.io/badge/deyndev-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/deyndev)
+
+<br />
+
+[Report Bug](https://github.com/deyndev/fluxboard/issues) · [Request Feature](https://github.com/deyndev/fluxboard/issues)
+
+</div>
+
